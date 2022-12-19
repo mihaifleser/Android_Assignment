@@ -12,6 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MainViewModel : ViewModel() {
     val activities: MutableLiveData<List<BoredActivityItemViewModel>> by lazy { MutableLiveData() }
+    val loading: MutableLiveData<Boolean> by lazy { MutableLiveData() }
 
     private val retrofitClient = Retrofit.Builder().baseUrl("https://www.boredapi.com")
         .addConverterFactory(GsonConverterFactory.create())
@@ -21,6 +22,7 @@ class MainViewModel : ViewModel() {
     private lateinit var currentActivities: MutableList<BoredActivity>
 
     val getRandomActivities: (type: String) -> Unit = { type ->
+        loading.postValue(true)
         currentActivities = emptyList<BoredActivity>().toMutableList()
         viewModelScope.launch(Dispatchers.IO) {
             for (i in 1..15) {
@@ -28,6 +30,7 @@ class MainViewModel : ViewModel() {
             }
             println(currentActivities)
             activities.postValue(currentActivities.map { BoredActivityItemViewModel(it) })
+            loading.postValue(false)
         }
     }
 
